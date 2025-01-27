@@ -1,20 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using RecipesSharingWebsite.Configurations.Entities;
-using RecipesSharingWebsite.Domain;
+using RecipesSharingWebsite.Data;
 
 namespace RecipesSharingWebsite.Data
 {
-    public class RecipesSharingWebsiteContext : DbContext
+    public class RecipesSharingWebsiteContext(DbContextOptions<RecipesSharingWebsiteContext> options) : IdentityDbContext<RecipesSharingWebsiteUser>(options)
     {
-        public RecipesSharingWebsiteContext (DbContextOptions<RecipesSharingWebsiteContext> options)
-            : base(options)
-        {
-        }
-
         public DbSet<RecipesSharingWebsite.Domain.Category> Category { get; set; } = default!;
         public DbSet<RecipesSharingWebsite.Domain.Comment> Comment { get; set; } = default!;
         public DbSet<RecipesSharingWebsite.Domain.Ingredient> Ingredient { get; set; } = default!;
@@ -26,6 +18,5 @@ namespace RecipesSharingWebsite.Data
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfiguration(new CategorySeed());
         }
-
     }
 }
