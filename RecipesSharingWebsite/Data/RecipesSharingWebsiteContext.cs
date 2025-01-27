@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using CarRentalManagement.Configurations.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using RecipesSharingWebsite.Configurations.Entities;
 using RecipesSharingWebsite.Data;
@@ -17,6 +18,9 @@ namespace RecipesSharingWebsite.Data
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfiguration(new CategorySeed());
+            modelBuilder.ApplyConfiguration(new RoleSeed());
+            modelBuilder.ApplyConfiguration(new UserRoleSeed());
+            modelBuilder.ApplyConfiguration(new UserSeed());
         }
     }
 }
