@@ -1,0 +1,99 @@
+﻿@page "/ratings/edit"
+@using Microsoft.EntityFrameworkCore
+@using RecipesSharingWebsite.Domain
+@inject IDbContextFactory<RecipesSharingWebsite.Data.RecipesSharingWebsiteContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Rating</h2>
+<hr />
+@if (Rating is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Rating" OnValidSubmit="UpdateRating" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="Rating.RatingID" value="@Rating.RatingID" />
+                <div class="mb-3">
+                    <label for="ratingvalue" class="form-label">RatingValue:</label>
+                    <InputNumber id="ratingvalue" @bind-Value="Rating.RatingValue" class="form-control" />
+                    <ValidationMessage For="() => Rating.RatingValue" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="recipeid" class="form-label">RecipeID:</label>
+                    <InputNumber id="recipeid" @bind-Value="Rating.RecipeID" class="form-control" />
+                    <ValidationMessage For="() => Rating.RecipeID" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="daterated" class="form-label">DateRated:</label>
+                    <InputDate id="daterated" @bind-Value="Rating.DateRated" class="form-control" />
+                    <ValidationMessage For="() => Rating.DateRated" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/ratings">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int RatingID { get; set; }
+
+    [SupplyParameterFromForm]
+    private Rating? Rating { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Rating ??= await context.Rating.FirstOrDefaultAsync(m => m.RatingID == RatingID);
+
+        if (Rating is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateRating()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Rating!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!RatingExists(Rating!.RatingID))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/ratings");
+    }
+
+    private bool RatingExists(int ratingid)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Rating.Any(e => e.RatingID == ratingid);
+    }
+}

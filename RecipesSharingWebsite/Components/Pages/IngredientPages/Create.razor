@@ -1,0 +1,54 @@
+﻿@page "/ingredients/create"
+@using Microsoft.EntityFrameworkCore
+@using RecipesSharingWebsite.Domain
+@inject IDbContextFactory<RecipesSharingWebsite.Data.RecipesSharingWebsiteContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Ingredient</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Ingredient" OnValidSubmit="AddIngredient" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <label for="name" class="form-label">Name:</label> 
+                <InputText id="name" @bind-Value="Ingredient.Name" class="form-control" /> 
+                <ValidationMessage For="() => Ingredient.Name" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="quantity" class="form-label">Quantity:</label> 
+                <InputText id="quantity" @bind-Value="Ingredient.Quantity" class="form-control" /> 
+                <ValidationMessage For="() => Ingredient.Quantity" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="recipeid" class="form-label">RecipeID:</label> 
+                <InputNumber id="recipeid" @bind-Value="Ingredient.RecipeID" class="form-control" /> 
+                <ValidationMessage For="() => Ingredient.RecipeID" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/ingredients">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Ingredient Ingredient { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddIngredient()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Ingredient.Add(Ingredient);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/ingredients");
+    }
+}

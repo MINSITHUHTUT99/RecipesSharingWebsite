@@ -1,0 +1,50 @@
+﻿@page "/ingredients/details"
+@using Microsoft.EntityFrameworkCore
+@using RecipesSharingWebsite.Domain
+@inject IDbContextFactory<RecipesSharingWebsite.Data.RecipesSharingWebsiteContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Ingredient</h2>
+    <hr />
+    @if (ingredient is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Name</dt>
+            <dd class="col-sm-10">@ingredient.Name</dd>
+            <dt class="col-sm-2">Quantity</dt>
+            <dd class="col-sm-10">@ingredient.Quantity</dd>
+            <dt class="col-sm-2">RecipeID</dt>
+            <dd class="col-sm-10">@ingredient.RecipeID</dd>
+        </dl>
+        <div>
+            <a href="@($"/ingredients/edit?ingredientid={ingredient.IngredientID}")">Edit</a> |
+            <a href="@($"/ingredients")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Ingredient? ingredient;
+
+    [SupplyParameterFromQuery]
+    private int IngredientID { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        ingredient = await context.Ingredient.FirstOrDefaultAsync(m => m.IngredientID == IngredientID);
+
+        if (ingredient is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

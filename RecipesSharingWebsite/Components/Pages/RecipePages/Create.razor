@@ -1,0 +1,74 @@
+﻿@page "/recipes/create"
+@using Microsoft.EntityFrameworkCore
+@using RecipesSharingWebsite.Domain
+@inject IDbContextFactory<RecipesSharingWebsite.Data.RecipesSharingWebsiteContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Recipe</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Recipe" OnValidSubmit="AddRecipe" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <label for="title" class="form-label">Title:</label> 
+                <InputText id="title" @bind-Value="Recipe.Title" class="form-control" /> 
+                <ValidationMessage For="() => Recipe.Title" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="description" class="form-label">Description:</label> 
+                <InputText id="description" @bind-Value="Recipe.Description" class="form-control" /> 
+                <ValidationMessage For="() => Recipe.Description" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="cuisinetype" class="form-label">CuisineType:</label> 
+                <InputText id="cuisinetype" @bind-Value="Recipe.CuisineType" class="form-control" /> 
+                <ValidationMessage For="() => Recipe.CuisineType" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="preparationtime" class="form-label">PreparationTime:</label> 
+                <InputNumber id="preparationtime" @bind-Value="Recipe.PreparationTime" class="form-control" /> 
+                <ValidationMessage For="() => Recipe.PreparationTime" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="difficultylevel" class="form-label">DifficultyLevel:</label> 
+                <InputText id="difficultylevel" @bind-Value="Recipe.DifficultyLevel" class="form-control" /> 
+                <ValidationMessage For="() => Recipe.DifficultyLevel" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="authorname" class="form-label">AuthorName:</label> 
+                <InputText id="authorname" @bind-Value="Recipe.AuthorName" class="form-control" /> 
+                <ValidationMessage For="() => Recipe.AuthorName" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="categoryid" class="form-label">CategoryID:</label> 
+                <InputNumber id="categoryid" @bind-Value="Recipe.CategoryID" class="form-control" /> 
+                <ValidationMessage For="() => Recipe.CategoryID" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/recipes">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Recipe Recipe { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddRecipe()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Recipe.Add(Recipe);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/recipes");
+    }
+}

@@ -1,0 +1,42 @@
+﻿@page "/recipes"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using RecipesSharingWebsite.Domain
+@using RecipesSharingWebsite.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<RecipesSharingWebsite.Data.RecipesSharingWebsiteContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="recipes/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Recipe">
+    <PropertyColumn Property="recipe => recipe.Title" />
+    <PropertyColumn Property="recipe => recipe.Description" />
+    <PropertyColumn Property="recipe => recipe.CuisineType" />
+    <PropertyColumn Property="recipe => recipe.PreparationTime" />
+    <PropertyColumn Property="recipe => recipe.DifficultyLevel" />
+    <PropertyColumn Property="recipe => recipe.AuthorName" />
+    <PropertyColumn Property="recipe => recipe.CategoryID" />
+
+    <TemplateColumn Context="recipe">
+        <a href="@($"recipes/edit?recipeid={recipe.RecipeID}")">Edit</a> |
+        <a href="@($"recipes/details?recipeid={recipe.RecipeID}")">Details</a> |
+        <a href="@($"recipes/delete?recipeid={recipe.RecipeID}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private RecipesSharingWebsiteContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

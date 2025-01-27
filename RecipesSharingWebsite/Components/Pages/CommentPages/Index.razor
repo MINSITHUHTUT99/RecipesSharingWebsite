@@ -1,0 +1,39 @@
+﻿@page "/comments"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using RecipesSharingWebsite.Domain
+@using RecipesSharingWebsite.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<RecipesSharingWebsite.Data.RecipesSharingWebsiteContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="comments/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Comment">
+    <PropertyColumn Property="comment => comment.Content" />
+    <PropertyColumn Property="comment => comment.AuthorName" />
+    <PropertyColumn Property="comment => comment.RecipeID" />
+    <PropertyColumn Property="comment => comment.DatePosted" />
+
+    <TemplateColumn Context="comment">
+        <a href="@($"comments/edit?commentid={comment.CommentID}")">Edit</a> |
+        <a href="@($"comments/details?commentid={comment.CommentID}")">Details</a> |
+        <a href="@($"comments/delete?commentid={comment.CommentID}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private RecipesSharingWebsiteContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

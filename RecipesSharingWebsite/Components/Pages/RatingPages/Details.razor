@@ -1,0 +1,50 @@
+﻿@page "/ratings/details"
+@using Microsoft.EntityFrameworkCore
+@using RecipesSharingWebsite.Domain
+@inject IDbContextFactory<RecipesSharingWebsite.Data.RecipesSharingWebsiteContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Rating</h2>
+    <hr />
+    @if (rating is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">RatingValue</dt>
+            <dd class="col-sm-10">@rating.RatingValue</dd>
+            <dt class="col-sm-2">RecipeID</dt>
+            <dd class="col-sm-10">@rating.RecipeID</dd>
+            <dt class="col-sm-2">DateRated</dt>
+            <dd class="col-sm-10">@rating.DateRated</dd>
+        </dl>
+        <div>
+            <a href="@($"/ratings/edit?ratingid={rating.RatingID}")">Edit</a> |
+            <a href="@($"/ratings")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Rating? rating;
+
+    [SupplyParameterFromQuery]
+    private int RatingID { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        rating = await context.Rating.FirstOrDefaultAsync(m => m.RatingID == RatingID);
+
+        if (rating is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

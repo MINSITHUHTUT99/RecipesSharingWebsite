@@ -1,0 +1,104 @@
+﻿@page "/comments/edit"
+@using Microsoft.EntityFrameworkCore
+@using RecipesSharingWebsite.Domain
+@inject IDbContextFactory<RecipesSharingWebsite.Data.RecipesSharingWebsiteContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Comment</h2>
+<hr />
+@if (Comment is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Comment" OnValidSubmit="UpdateComment" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="Comment.CommentID" value="@Comment.CommentID" />
+                <div class="mb-3">
+                    <label for="content" class="form-label">Content:</label>
+                    <InputText id="content" @bind-Value="Comment.Content" class="form-control" />
+                    <ValidationMessage For="() => Comment.Content" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="authorname" class="form-label">AuthorName:</label>
+                    <InputText id="authorname" @bind-Value="Comment.AuthorName" class="form-control" />
+                    <ValidationMessage For="() => Comment.AuthorName" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="recipeid" class="form-label">RecipeID:</label>
+                    <InputNumber id="recipeid" @bind-Value="Comment.RecipeID" class="form-control" />
+                    <ValidationMessage For="() => Comment.RecipeID" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="dateposted" class="form-label">DatePosted:</label>
+                    <InputDate id="dateposted" @bind-Value="Comment.DatePosted" class="form-control" />
+                    <ValidationMessage For="() => Comment.DatePosted" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/comments">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int CommentID { get; set; }
+
+    [SupplyParameterFromForm]
+    private Comment? Comment { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Comment ??= await context.Comment.FirstOrDefaultAsync(m => m.CommentID == CommentID);
+
+        if (Comment is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateComment()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Comment!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!CommentExists(Comment!.CommentID))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/comments");
+    }
+
+    private bool CommentExists(int commentid)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Comment.Any(e => e.CommentID == commentid);
+    }
+}
